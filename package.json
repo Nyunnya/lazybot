@@ -1,0 +1,19 @@
+{
+  "name": "lazybot",
+  "version": "1.0.0",
+  "description": "A lazy way to make Discord bots.",
+  "main": "index.js",
+  "author": "Alyanah <40045317+alyanah@users.noreply.github.com>",
+  "homepage": "https://github.com/alyanah/lazybot",
+  "bugs": {
+    "url": "https://github.com/alyanah/lazybot/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alyanah/lazybot.git"
+  },
+  "dependencies": {
+    "discord.js": "^11.3.2"
+  }
+}
