@@ -26,7 +26,7 @@ client.commands.hook("hello", (params) => {
 client.login(token);
 ```
 
-Commands can be loaded at runtime from seperate files to help organize your code better.
+Commands can be loaded at runtime from separate files to help organize your code better.
 
 ```javascript
 client.commands.load("./commands")
