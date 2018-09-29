@@ -120,7 +120,6 @@ module.exports = class Commands {
                 "client": this._client,
                 "message": message,
                 "displayName": message.member ? message.member.displayName : message.author.username,
-                "permissions": (message.member ? message.member.permissions : undefined),
                 "args": args,
                 "data": this._data
             });

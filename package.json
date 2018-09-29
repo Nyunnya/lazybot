@@ -15,7 +15,7 @@
     "url": "https://github.com/alyanah/lazybot.git"
   },
   "dependencies": {
-    "discord.js": "^11.3.2"
+    "discord.js": "^11.4.2"
   },
   "engines": {
     "node": ">=8.0"
