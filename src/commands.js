@@ -5,6 +5,13 @@ const Argument = require('./argument');
 
 const DEFAULT_PREFIX = "!";
 
+/**
+ * Parse an alias, replacing argument references with actual arguments.
+ * 
+ * @param {string} alias - The alias to parse.
+ * @param {Argument[]} args - The arguments to use in the replacement.
+ * @returns {string} The new line after parsing is complete.
+ */
 function parseAlias(alias, args) {
     let message = "";
 
@@ -31,6 +38,11 @@ function parseAlias(alias, args) {
     return message;
 }
 
+/**
+ * @typedef {object} Commands
+ * 
+ * Handles parsing commands in channels or direct messages.
+ */
 module.exports = class Commands {
     constructor(client) {
         this._commands = {};
@@ -41,20 +53,51 @@ module.exports = class Commands {
         this._client = client;
     }
 
+    /**
+     * Returns the command prefix for commands used in channels.
+     * 
+     * @returns {string} The command prefix.
+     */
     get prefix() {
         return this._prefix;
     }
+
+    /**
+     * Sets the command prefix for commands used in channels.
+     * 
+     * @param {string} value - The command prefix.
+     */
     set prefix(value) {
         this._prefix = value;
     }
 
+    /**
+     * Returns the optional data passed to the callback function when it's
+     * called.
+     * 
+     * @returns {object} The optional data.
+     */
     get data() {
         return this._data;
     }
+
+    /**
+     * Sets the optional data passed to the callback function when it's
+     * called.
+     * 
+     * @param {object} value - The optional data.
+     */
     set data(value) {
         this._data = value;
     }
 
+    /**
+     * Hook a command to be parsed in channels or direct messages.
+     * 
+     * @param {string} command - The name of the command to hook.
+     * @param {object} data - Data backing the command, either an alias or a
+     * callback function.
+     */
     hook(command, data) {
         console.log(`Hook command '${command}'.`);
 
@@ -76,6 +119,13 @@ module.exports = class Commands {
         }
     }
 
+    /**
+     * Parse messages and if they contain one of the hooked commands then call
+     * the callback function.
+     * 
+     * @param {object} message - The Discord.js Message object to parse.
+     * @param {string} [line] - Overrides the line in the Message object.
+     */
     parse(message, line = "") {
         // Ignore messages from bots (including ourself).
         if (message.author.bot) {
@@ -126,6 +176,11 @@ module.exports = class Commands {
         }
     }
 
+    /**
+     * Unhook a command from parsing.
+     * 
+     * @param {string} command - The name of the command to unhook.
+     */
     unhook(command) {
         if (command in this._commands) {
             delete this._commands[command];
@@ -134,6 +189,12 @@ module.exports = class Commands {
         }
     }
 
+    /**
+     * Load commands from files contained in the source path. Searches
+     * recursively loading commands from all subdirectories.
+     * 
+     * @param {string} source - The source path to load commands from.
+     */
     load(source) {
         source = fs.realpathSync(source);
 

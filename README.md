@@ -41,7 +41,7 @@ You can set the command prefix for commands used in channels. It defaults to `!`
 client.commands.prefix = "~";
 ```
 
-You can pass data to the callback function when its called.
+You can pass data to the callback function when it's called.
 
 ```javascript
 client.commands.data = {

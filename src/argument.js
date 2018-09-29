@@ -1,3 +1,9 @@
+/**
+ * @typedef {object} Argument
+ * 
+ * A Command argument. If the argument is a reference to a member or a channel,
+ * further expand that to its respective Discord.js objects.
+ */
 module.exports = class Argument extends String {
     constructor(arg, message) {
         super(arg);
@@ -16,6 +22,11 @@ module.exports = class Argument extends String {
         }
     }
 
+    /**
+     * Returns the raw value of the argument.
+     * 
+     * @returns {string} The raw value of the argument.
+     */
     get rawValue() {
         let value = this.toString();
 
