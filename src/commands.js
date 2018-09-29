@@ -114,14 +114,13 @@ module.exports = class Commands {
             return;
         }
 
-        // TODO: Check permissions.
-
         // Run the command.
         if (command.callback) {
             command.callback({
                 "client": this._client,
                 "message": message,
                 "displayName": message.member ? message.member.displayName : message.author.username,
+                "permissions": (message.member ? message.member.permissions : undefined),
                 "args": args,
                 "data": this._data
             });
@@ -137,31 +136,34 @@ module.exports = class Commands {
     }
 
     load(source) {
-        return new Promise((resolve, reject) => {
-            source = fs.realpathSync(source);
+        source = fs.realpathSync(source);
 
-            if (fs.statSync(source).isDirectory()) {
-                // Directory
-                Promise.all(fs.readdirSync(source).map(s => this.load(path.join(source, s))))
-                    .then(resolve)
-                    .catch(reject);
-            } else {
-                // File
-                try {
-                    // Only load files ending in '.js' and hook them if they are an object with a 'name' property.
-                    if (path.extname(source) == ".js") {
-                        let data = require(source);
+        if (fs.statSync(source).isDirectory()) {
+            // Directory
+            return Promise.all(fs.readdirSync(source).map(s => this.load(path.join(source, s))));
+        } else {
+            // File
+            try {
+                // Only load files ending in '.js' and hook them if they are an object with a 'name' property.
+                if (path.extname(source) == ".js") {
+                    let data = require(source);
 
-                        if (data.name) {
-                            this.hook(data.name, data);
+                    if (data && typeof data === 'object' && data.name) {
+                        this.hook(data.name, data);
+
+                        // Hook any aliases, if present.
+                        if (data.aliases) {
+                            for (let alias of data.aliases) {
+                                this.hook(alias, data);
+                            }
                         }
                     }
-
-                    resolve(true);
-                } catch (err) {
-                    reject(err);
                 }
+
+                return Promise.resolve(true);
+            } catch (err) {
+                return Promise.reject(err);
             }
-        });
+        }
     }
 };
