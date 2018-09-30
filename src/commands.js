@@ -153,27 +153,63 @@ module.exports = class Commands {
         args = args.map(a => new Argument(a, message));
 
         // If the command doesn't exist, ignore.
-        if (typeof command === "undefined") {
+        if (!command) {
             return;
         }
 
         // If the command is an alias, fill it in and parse it.
+        // This has to happen before the callback check because aliases won't
+        // have callbacks.
         if (command.alias) {
             this.parse(message, parseAlias(command.alias, args));
 
             return;
         }
 
-        // Run the command.
-        if (command.callback) {
-            command.callback({
-                "client": this._client,
-                "message": message,
-                "displayName": message.member ? message.member.displayName : message.author.username,
-                "args": args,
-                "data": this._data
-            });
+        // If the command doesn't have a callback, ignore.
+        if (!command.callback) {
+            return;
         }
+
+        let params = {
+            "client": this._client,
+            "message": message,
+            "displayName": message.member ? message.member.displayName : message.author.username,
+            "args": args,
+            "data": this._data
+        };
+
+        // Run the command.
+        command.callback(params)
+        .then(result => {
+            // If the result is false, return.
+            if (!result) {
+                return;
+            }
+
+            // If the command has subcommands, handle them.
+            if (command.subcommands) {
+                let subcommand = command.subcommands[params.args.shift().toLowerCase()];
+
+                // If the subcommand doesn't exist, ignore.
+                if (!subcommand) {
+                    return;
+                }
+
+                // Run the subcommand.
+                return subcommand(params);
+            }
+        })
+        .catch(err => {
+            let error = err.message;
+
+            // If the command has a custom error handler.
+            if (command.error) {
+                error = command.error(err) || error;
+            }
+
+            message.channel.send(`**ERROR**: ${error}`);
+        });
     }
 
     /**
