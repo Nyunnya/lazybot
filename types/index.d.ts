@@ -3,10 +3,12 @@ declare module 'lazybot' {
 
     export * from 'discord.js';
 
+    type Alias = string;
+
     type Command = {
         name: string;
-        alias?: string;
-        aliases?: string[];
+        alias?: Alias;
+        synonyms?: string[];
         callback: CommandCallback;
     };
 
@@ -23,8 +25,7 @@ declare module 'lazybot' {
     class Argument extends String {
         public readonly member?: Discord.GuildMember;
         public readonly channel?: Discord.TextChannel;
-
-        public readonly rawValue(): string;
+        public readonly rawValue: string;
     }
 
     class Commands {

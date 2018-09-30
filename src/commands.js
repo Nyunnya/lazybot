@@ -211,10 +211,10 @@ module.exports = class Commands {
                     if (data && typeof data === 'object' && data.name) {
                         this.hook(data.name, data);
 
-                        // Hook any aliases, if present.
-                        if (data.aliases) {
-                            for (let alias of data.aliases) {
-                                this.hook(alias, data);
+                        // Hook any synonyms, if present.
+                        if (data.synonyms) {
+                            for (let synonym of data.synonyms) {
+                                this.hook(synonym, data);
                             }
                         }
                     }
