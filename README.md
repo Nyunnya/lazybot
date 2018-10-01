@@ -16,7 +16,7 @@ const lazybot = require('lazybot');
 var client = new lazybot.Client();
 ```
 
-Except you now have a `commands` property on the `Client` object that allows you to hook commands to be handled by a callback function.
+Except you now have a `commands` property on the `Client` object that allows you to hook commands to be handled by a command handler.
 
 ```javascript
 client.commands.hook("hello", (params) => {
@@ -41,7 +41,7 @@ You can set the command prefix for commands used in channels. It defaults to `!`
 client.commands.prefix = "~";
 ```
 
-You can pass data to the callback function when it's called.
+You can pass data to the command handler when it's run.
 
 ```javascript
 client.commands.data = {
@@ -49,7 +49,7 @@ client.commands.data = {
 };
 ```
 
-The callback function is called with a `params` object:
+The command handler is run with a `params` object:
 
 - `params` (Object)
     - `client` (Object)
@@ -73,11 +73,38 @@ The callback function is called with a `params` object:
         Optional data passed into the command.
 
 ```javascript
-client.commands.hook("hello", (params) => {
+client.commands.hook("hello", new lazybot.CommandHandler((params) => {
     let {message, args} = params;
 
     message.channel.send("hello, world!");
+
+    return Promise.resolve();
+}));
+```
+
+The command handler must return a Promise. This is necessary to chain commands together using subcommands.
+
+Command handlers can catch errors using an optional error handler.
+
+```javascript
+client.commands.hook("hello", new lazybot.CommandHandler((params) => {
+    // ...
+}, (params) => {
+    console.log("An error occured: " + params.err);
 });
+```
+
+Subcommands can be handled by hooking a subcommand handler in place of a command handler.
+
+```javascript
+client.commands.hook("user", new lazybot.SubCommandHandler({
+    "info": new lazybot.CommandHandler((params) => {
+        // ...
+    }),
+    "add": new lazybot.CommandHandler((params) => {
+        // ...
+    })
+}));
 ```
 
 ## Examples

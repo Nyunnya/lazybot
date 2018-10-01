@@ -3,18 +3,7 @@ declare module 'lazybot' {
 
     export * from 'discord.js';
 
-    type Command = {
-        name: string;
-        alias?: string;
-        synonyms?: string[];
-        subcommands?: { [key: string]: CommandCallback };
-        callback: CommandCallback;
-        error?: CommandErrorFormatter;
-    };
-
-    type CommandCallback = (params: CommandCallbackParams) => Promise<boolean>;
-
-    type CommandCallbackParams = {
+    type CommandHandlerParams = {
         client: Client;
         message: Discord.Message;
         displayName: string;
@@ -22,7 +11,7 @@ declare module 'lazybot' {
         data: { [key: string]: any };
     };
 
-    type CommandErrorFormatter = (err: Error) => string;
+    type CommandHandlerCallback = (params: CommandHandlerParams) => Promise<boolean>;
 
     class Argument extends String {
         public readonly member?: Discord.GuildMember;
@@ -30,13 +19,40 @@ declare module 'lazybot' {
         public readonly rawValue: string;
     }
 
+    export class CommandHandler {
+        constructor(callback: CommandHandlerCallback, error?: CommandHandlerCallback);
+
+        public callback: CommandHandlerCallback;
+
+        public run(params: CommandHandlerParams);
+    }
+
+    export class SubCommandHandler extends CommandHandler {
+        constructor();
+        constructor(subcommands: { [key: string]: CommandHandler },
+            prehandler?: CommandHandlerCallback, error?: CommandHandlerCallback);
+    }
+
+    export class Command {
+        constructor();
+        constructor(name: string, alias: string);
+        constructor(name: string, callback: CommandHandler);
+        constructor(command: Command);
+
+        public name: string;
+        public alias?: string;
+        public synonyms?: string[];
+        public subcommands?: { [key: string]: CommandHandler };
+        public handler: CommandHandler;
+    }
+
     class Commands {
         public prefix?: string;
         public data?: object;
 
-        public hook(command: string, data: CommandCallback | string | Command): void;
+        public hook(name: string, data: string | CommandHandler | Command): void;
         public parse(message: Discord.Message, line?: string): void;
-        public unhook(command: string): void;
+        public unhook(name: string): void;
         public load(source: string): void;
     }
 

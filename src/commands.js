@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const Argument = require('./argument');
+const Command = require('./command');
+const CommandHandler = require('./commandhandler');
 
 const DEFAULT_PREFIX = "!";
 
@@ -72,7 +74,7 @@ module.exports = class Commands {
     }
 
     /**
-     * Returns the optional data passed to the callback function when it's
+     * Returns the optional data passed to the command handler when it's
      * called.
      * 
      * @returns {object} The optional data.
@@ -82,7 +84,7 @@ module.exports = class Commands {
     }
 
     /**
-     * Sets the optional data passed to the callback function when it's
+     * Sets the optional data passed to the command handler when it's
      * called.
      * 
      * @param {object} value - The optional data.
@@ -94,34 +96,27 @@ module.exports = class Commands {
     /**
      * Hook a command to be parsed in channels or direct messages.
      * 
-     * @param {string} command - The name of the command to hook.
-     * @param {object} data - Data backing the command, either an alias or a
-     * callback function.
+     * @param {string} name - The name of the command to hook.
+     * @param {object} data - An alias, command handler, or existing command.
      */
-    hook(command, data) {
-        console.log(`Hook command '${command}'.`);
+    hook(name, data) {
+        console.log(`Hook command '${name}'.`);
 
-        if (typeof data === "string") {
+        if (typeof data === 'string') {
             // Alias
-            this._commands[command] = {
-                "name": command,
-                "alias": data
-            };
-        } else if (typeof data === "function") {
-            // Callback function
-            this._commands[command] = {
-                "name": command,
-                "callback": data
-            };
-        } else if (typeof data === "object") {
-            // Raw object
-            this._commands[command] = data;
+            this._commands[name] = new Command(name, data);
+        } else if (data instanceof CommandHandler) {
+            // Command handler
+            this._commands[name] = new Command(name, data);
+        } else if (data instanceof Command) {
+            // Command
+            this._commands[name] = data;
         }
     }
 
     /**
      * Parse messages and if they contain one of the hooked commands then call
-     * the callback function.
+     * the command handler.
      * 
      * @param {object} message - The Discord.js Message object to parse.
      * @param {string} [line] - Overrides the line in the Message object.
@@ -158,16 +153,16 @@ module.exports = class Commands {
         }
 
         // If the command is an alias, fill it in and parse it.
-        // This has to happen before the callback check because aliases won't
-        // have callbacks.
+        // This has to happen before the command handler check because aliases
+        // won't have command handlers.
         if (command.alias) {
             this.parse(message, parseAlias(command.alias, args));
 
             return;
         }
 
-        // If the command doesn't have a callback, ignore.
-        if (!command.callback) {
+        // If the command doesn't have a command handler, ignore.
+        if (!(command.handler instanceof CommandHandler)) {
             return;
         }
 
@@ -180,48 +175,26 @@ module.exports = class Commands {
         };
 
         // Run the command.
-        command.callback(params)
-        .then(result => {
-            // If the result is false, return.
-            if (!result) {
-                return;
-            }
-
-            // If the command has subcommands, handle them.
-            if (command.subcommands) {
-                let subcommand = command.subcommands[params.args.shift().toLowerCase()];
-
-                // If the subcommand doesn't exist, ignore.
-                if (!subcommand) {
-                    return;
-                }
-
-                // Run the subcommand.
-                return subcommand(params);
-            }
-        })
-        .catch(err => {
-            let error = err.message;
-
-            // If the command has a custom error handler.
-            if (command.error) {
-                error = command.error(err) || error;
-            }
-
-            message.channel.send(`**ERROR**: ${error}`);
-        });
+        try {
+            command.handler.run(params, command)
+            .catch(err => {
+                console.log("Unhandled error: " + err);
+            });
+        } catch(err) {
+            console.log("Unhandled error: " + err);
+        }
     }
 
     /**
      * Unhook a command from parsing.
      * 
-     * @param {string} command - The name of the command to unhook.
+     * @param {string} name - The name of the command to unhook.
      */
-    unhook(command) {
-        if (command in this._commands) {
-            delete this._commands[command];
+    unhook(name) {
+        if (name in this._commands) {
+            delete this._commands[name];
 
-            console.log(`Unhook command '${command}'.`);
+            console.log(`Unhook command '${name}'.`);
         }
     }
 
@@ -244,7 +217,7 @@ module.exports = class Commands {
                 if (path.extname(source) == ".js") {
                     let data = require(source);
 
-                    if (data && typeof data === 'object' && data.name) {
+                    if (data instanceof Command && data.name) {
                         this.hook(data.name, data);
 
                         // Hook any synonyms, if present.
