@@ -19,9 +19,9 @@ var client = new lazybot.Client();
 Except you now have a `commands` property on the `Client` object that allows you to hook commands to be handled by a command handler.
 
 ```javascript
-client.commands.hook("hello", (params) => {
-    // Do stuff
-});
+client.commands.hook("hello", new lazybot.CommandHandler((params) => {
+    // ...
+}));
 
 client.login(token);
 ```
@@ -91,7 +91,7 @@ client.commands.hook("hello", new lazybot.CommandHandler((params) => {
     // ...
 }, (params) => {
     console.log("An error occured: " + params.err);
-});
+}));
 ```
 
 Subcommands can be handled by hooking a subcommand handler in place of a command handler.
