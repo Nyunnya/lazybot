@@ -39,8 +39,7 @@ module.exports = class CommandHandler {
             }
     
             // Call the error handler.
-            params.err = err;
-            return this.error(params);
+            return this.error(err, params);
         });
     }
 };

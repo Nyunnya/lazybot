@@ -13,6 +13,8 @@ declare module 'lazybot' {
 
     type CommandHandlerCallback = (params: CommandHandlerParams) => Promise<boolean>;
 
+    type CommandHandlerErrorHandler = (err: Error, params: CommandHandlerParams) => Promise<boolean>;
+
     class Argument extends String {
         public readonly member?: Discord.GuildMember;
         public readonly channel?: Discord.TextChannel;
@@ -20,7 +22,7 @@ declare module 'lazybot' {
     }
 
     export class CommandHandler {
-        constructor(callback: CommandHandlerCallback, error?: CommandHandlerCallback);
+        constructor(callback: CommandHandlerCallback, error?: CommandHandlerErrorHandler);
 
         public callback: CommandHandlerCallback;
 
@@ -30,7 +32,7 @@ declare module 'lazybot' {
     export class SubCommandHandler extends CommandHandler {
         constructor();
         constructor(subcommands: { [key: string]: CommandHandler },
-            prehandler?: CommandHandlerCallback, error?: CommandHandlerCallback);
+            prehandler?: CommandHandlerCallback, error?: CommandHandlerErrorHandler);
     }
 
     export class Command {
