@@ -89,8 +89,8 @@ Command handlers can catch errors using an optional error handler.
 ```javascript
 client.commands.hook("hello", new lazybot.CommandHandler((params) => {
     // ...
-}, (params) => {
-    console.log("An error occured: " + params.err);
+}, (err, params) => {
+    console.log("An error occured: " + err);
 }));
 ```
 
