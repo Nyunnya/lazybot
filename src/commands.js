@@ -3,7 +3,7 @@ const path = require('path');
 
 const Argument = require('./argument');
 const Command = require('./command');
-const CommandHandler = require('./commandhandler');
+const CommandHandler = require('./handlers/commandhandler');
 
 const DEFAULT_PREFIX = "!";
 
@@ -175,14 +175,11 @@ module.exports = class Commands {
         };
 
         // Run the command.
-        try {
-            command.handler.run(params, command)
-            .catch(err => {
-                console.log("Unhandled error: " + err);
-            });
-        } catch(err) {
-            console.log("Unhandled error: " + err);
-        }
+        Promise.resolve()
+        .then(() => command.handler.run(params, command))
+        .catch(err => {
+            console.log("Unhandled error: " + err.stack);
+        });
     }
 
     /**

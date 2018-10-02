@@ -1,4 +1,4 @@
-const CommandHandler = require('./commandhandler');
+const CommandHandler = require('./handlers/commandhandler');
 
 /**
  * @typedef {object} Command

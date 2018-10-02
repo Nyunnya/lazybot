@@ -35,6 +35,13 @@ declare module 'lazybot' {
             prehandler?: CommandHandlerCallback, error?: CommandHandlerErrorHandler);
     }
 
+    type PropertyHandlerCallback = (key: string, params: CommandHandlerParams) => Promise<boolean>;
+
+    export class PropertyHandler extends CommandHandler {
+        constructor(key: string, getter: PropertyHandlerCallback,
+            setter: PropertyHandlerCallback, error?: CommandHandlerErrorHandler);
+    }
+
     export class Command {
         constructor();
         constructor(name: string, alias: string);

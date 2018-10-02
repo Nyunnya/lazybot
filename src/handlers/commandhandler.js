@@ -14,6 +14,28 @@ module.exports = class CommandHandler {
     }
 
     /**
+     * Passes the error to the error handler if using one, otherwise passes
+     * the error along like nothing changed.
+     * 
+     * @param {Error} err - The error.
+     * @param {object} params - The parameters to pass to the callback function.
+     */
+    handleError(err, params) {
+        // If no error handler, pass the error up.
+        if (!this.error) {
+            throw err;
+        }
+
+        // If the error handler isn't a function, throw.
+        if (typeof this.error !== 'function') {
+            throw new TypeError("Error must be a function.");
+        }
+
+        // Call the error handler.
+        return this.error(err, params);
+    }
+
+    /**
      * Call the callback function.
      * 
      * @param {object} params - The parameters to pass to the callback function.
@@ -26,20 +48,8 @@ module.exports = class CommandHandler {
         }
 
         // Call the callback function.
-        return this.callback(params)
-        .catch(err => {
-            // If no error handler, pass the error up.
-            if (!this.error) {
-                throw err;
-            }
-    
-            // If the error handler isn't a function, throw.
-            if (typeof this.error !== 'function') {
-                throw new TypeError("Error must be a function.");
-            }
-    
-            // Call the error handler.
-            return this.error(err, params);
-        });
+        return Promise.resolve()
+        .then(() => this.callback(params))
+        .catch(err => this.handleError(err, params));
     }
 };
