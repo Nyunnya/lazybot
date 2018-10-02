@@ -82,8 +82,6 @@ client.commands.hook("hello", new lazybot.CommandHandler((params) => {
 }));
 ```
 
-The command handler must return a Promise. This is necessary to chain commands together using subcommands.
-
 Command handlers can catch errors using an optional error handler.
 
 ```javascript
