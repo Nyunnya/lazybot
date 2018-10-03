@@ -11,9 +11,9 @@ declare module 'lazybot' {
         data: { [key: string]: any };
     };
 
-    type CommandHandlerCallback = (params: CommandHandlerParams) => Promise<boolean>;
+    type CommandHandlerCallback = (params: CommandHandlerParams) => boolean;
 
-    type CommandHandlerErrorHandler = (err: Error, params: CommandHandlerParams) => Promise<boolean>;
+    type CommandHandlerErrorHandler = (err: Error, params: CommandHandlerParams) => boolean;
 
     class Argument extends String {
         public readonly member?: Discord.GuildMember;
@@ -35,7 +35,7 @@ declare module 'lazybot' {
             prehandler?: CommandHandlerCallback, error?: CommandHandlerErrorHandler);
     }
 
-    type PropertyHandlerCallback = (key: string, params: CommandHandlerParams) => Promise<boolean>;
+    type PropertyHandlerCallback = (key: string, params: CommandHandlerParams) => boolean;
 
     export class PropertyHandler extends CommandHandler {
         constructor(key: string, getter: PropertyHandlerCallback,

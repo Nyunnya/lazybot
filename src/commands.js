@@ -48,11 +48,10 @@ function parseAlias(alias, args) {
 module.exports = class Commands {
     constructor(client) {
         this._commands = {};
-        this._prefix = DEFAULT_PREFIX;
-
-        this._data = {};
-
         this._client = client;
+
+        this._prefix = DEFAULT_PREFIX;
+        this._data = {};
     }
 
     /**
@@ -100,17 +99,18 @@ module.exports = class Commands {
      * @param {object} data - An alias, command handler, or existing command.
      */
     hook(name, data) {
-        console.log(`Hook command '${name}'.`);
+        let command = data;
 
-        if (typeof data === 'string') {
-            // Alias
-            this._commands[name] = new Command(name, data);
-        } else if (data instanceof CommandHandler) {
-            // Command handler
-            this._commands[name] = new Command(name, data);
-        } else if (data instanceof Command) {
-            // Command
-            this._commands[name] = data;
+        // If an alias or command handler was passed, create a new command
+        // from it.
+        if (typeof data === 'string' || data instanceof CommandHandler) {
+            command = new Command(name, data);
+        }
+
+        if (command instanceof Command) {
+            console.log(`Hook command '${name}'.`);
+
+            this._commands[name] = command;
         }
     }
 
