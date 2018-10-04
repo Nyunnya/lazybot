@@ -142,10 +142,10 @@ module.exports = class Commands {
         }
 
         // Extract command and args.
-        let args = line.match(/"[^"]*"|\S+/g).map(a => a.replace(/^"?([^"]*)"?$/, "$1")) || [];
+        let args = line.match(/("+)[^\1]*?\1|\S+/g) || [];
 
         let command = this._commands[args.shift().toLowerCase()];
-        args = args.map(a => new Argument(a, message));
+        args = args.map(a => new Argument(a.replace(/^"?([^"]*)"?$/, "$1"), a, message));
 
         // If the command doesn't exist, ignore.
         if (!command) {

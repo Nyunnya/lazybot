@@ -5,11 +5,14 @@
  * further expand that to its respective Discord.js objects.
  */
 module.exports = class Argument extends String {
-    constructor(arg, message) {
+    constructor(arg, rawValue = undefined, message = undefined) {
         super(arg);
 
+        // Set the raw value of the argument.
+        this.rawValue = rawValue || arg;
+
         // If the message is in a guild, parse @mentions and #channels.
-        if (message.guild) {
+        if (message && message.guild) {
             let [, type, id] = arg.match(/^<([@#])!?(\d+)>$/) || [];
 
             if (type && id) {
@@ -20,21 +23,5 @@ module.exports = class Argument extends String {
                 }
             }
         }
-    }
-
-    /**
-     * Returns the raw value of the argument.
-     * 
-     * @returns {string} The raw value of the argument.
-     */
-    get rawValue() {
-        let value = this.toString();
-
-        // If the argument contains spaces, wrap it in quotes.
-        if (value.includes(" ")) {
-            value = `"${value}"`;
-        }
-
-        return value;
     }
 };
