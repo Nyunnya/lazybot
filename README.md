@@ -111,4 +111,4 @@ See [sample-bot](https://github.com/alyanah/sample-bot) for an example of this i
 
 ## Contact
 
-Add me on Discord: Alyanah#0001
+You can add me on Discord at `Alyanah#0001`
