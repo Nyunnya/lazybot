@@ -108,7 +108,7 @@ module.exports = class Commands {
         }
 
         if (command instanceof Command) {
-            console.log(`Hook command '${name}'.`);
+            this._client.emit('debug', `[commands] Hook command '${name}'.`);
 
             this._commands[name] = command;
         }
@@ -191,7 +191,7 @@ module.exports = class Commands {
         if (name in this._commands) {
             delete this._commands[name];
 
-            console.log(`Unhook command '${name}'.`);
+            this._client.emit('debug', `[commands] Unhook command '${name}'.`);
         }
     }
 
