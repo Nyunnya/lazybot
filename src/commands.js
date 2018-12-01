@@ -129,10 +129,11 @@ module.exports = class Commands {
 
         // If line isn't defined, parse it from the message.
         if (!line) {
-            if (message.channel.type == "text" && message.content.startsWith(this._prefix)) {
+            if (message.channel.type == 'text' && message.content.startsWith(this._prefix)
+                && message.content.length > 1) {
                 // If the message is from a channel and starts with our prefix, parse it.
                 line = message.content.slice(this._prefix.length);
-            } else if (message.channel.type == "dm") {
+            } else if (message.channel.type == 'dm') {
                 // If the message is from a dm, parse it.
                 line = message.content;
             } else {
