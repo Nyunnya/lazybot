@@ -55,6 +55,15 @@ module.exports = class Commands {
     }
 
     /**
+     * Returns the raw commands.
+     * 
+     * @returns {object} The raw commands.
+     */
+    get commands() {
+        return this._commands;
+    }
+
+    /**
      * Returns the command prefix for commands used in channels.
      * 
      * @returns {string} The command prefix.
