@@ -22,7 +22,7 @@ function parseAlias(alias, args) {
 
         if (param) {
             if (param == "*") {
-                if (args.length < 1) {
+                if (!args.length) {
                     continue;
                 }
 
