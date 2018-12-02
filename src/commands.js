@@ -22,6 +22,10 @@ function parseAlias(alias, args) {
 
         if (param) {
             if (param == "*") {
+                if (args.length < 1) {
+                    continue;
+                }
+
                 piece = args.map(a => a.rawValue).join(" ");
             } else {
                 let i = parseInt(param);
@@ -60,7 +64,7 @@ module.exports = class Commands {
      * @returns {object} The raw commands.
      */
     get commands() {
-        return this._commands;
+        return Object.values(this._commands);
     }
 
     /**
@@ -230,7 +234,8 @@ module.exports = class Commands {
                         // Hook any synonyms, if present.
                         if (data.synonyms) {
                             for (let synonym of data.synonyms) {
-                                this.hook(synonym, data);
+                                this.hook(synonym, `${data.name} $*`);
+                                //this.hook(synonym, data);
                             }
                         }
                     }

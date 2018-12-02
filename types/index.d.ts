@@ -55,7 +55,7 @@ declare module 'lazybot' {
     }
 
     class Commands {
-        public commands: object;
+        public commands: Command[];
         public prefix?: string;
         public data?: object;
 
