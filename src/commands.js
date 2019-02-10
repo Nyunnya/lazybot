@@ -235,7 +235,6 @@ module.exports = class Commands {
                         if (data.synonyms) {
                             for (let synonym of data.synonyms) {
                                 this.hook(synonym, `${data.name} $*`);
-                                //this.hook(synonym, data);
                             }
                         }
                     }
