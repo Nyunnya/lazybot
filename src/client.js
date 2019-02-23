@@ -14,35 +14,53 @@ module.exports = class Client extends Discord.Client {
 
         this.commands = new Commands(this);
 
-        // Use raw packets to always fire messageReactionAdd and messageReactionRemove
-        // events, regardless of message cache.
+        // Use raw packets to fire events for all messages regardless of message cache.
         this.on('raw', packet => {
             // Ignore unrelated packets.
-            if (packet.t !== "MESSAGE_REACTION_ADD" && packet.t !== "MESSAGE_REACTION_REMOVE") {
+            if (packet.t !== "MESSAGE_REACTION_ADD" && packet.t !== "MESSAGE_REACTION_REMOVE" &&
+                packet.t != "MESSAGE_DELETE") {
                 return;
             }
 
             let channel = this.channels.get(packet.d.channel_id);
 
-            // If the message is already cached, it will fire the event.
-            if (channel.messages.has(packet.d.message_id)) {
-                return;
+            // Fire the event.
+            switch(packet.t) {
+                case "MESSAGE_REACTION_ADD":
+                case "MESSAGE_REACTION_REMOVE": {
+                    Promise.resolve()
+                    .then(() => {
+                        // Use the message cache if possible, otherwise fetch the message.
+                        if (channel.messages.has(packet.d.message_id)) {
+                            return channel.messages.get(packet.d.message_id);
+                        } else {
+                            return channel.fetchMessage(packet.d.message_id);
+                        }
+                    })
+                    .then(message => {
+                        let emoji = packet.d.emoji.id ? `${packet.d.emoji.name}:${packet.d.emoji.id}` : packet.d.emoji.name;
+                        let reaction = message.reactions.get(emoji);
+                        let user = this.users.get(packet.d.user_id);
+
+                        if (packet.t === "MESSAGE_REACTION_ADD") {
+                            this.emit('messageReactionAddRaw', reaction, user);
+                        }
+                        if (packet.t === "MESSAGE_REACTION_REMOVE") {
+                            this.emit('messageReactionRemoveRaw', reaction, user);
+                        }
+                    });
+
+                    break;
+                }
+
+                case "MESSAGE_DELETE": {
+                    // messageDelete supplies a message object because it's cached. If the message
+                    // isn't cached then all that can be supplied is the message id.
+                    this.emit('messageDeleteRaw', packet.d.id);
+
+                    break;
+                }
             }
-
-            // Fetch the message and fire the event.
-            channel.fetchMessage(packet.d.message_id)
-            .then(message => {
-                let emoji = packet.d.emoji.id ? `${packet.d.emoji.name}:${packet.d.emoji.id}` : packet.d.emoji.name;
-                let reaction = message.reactions.get(emoji);
-                let user = this.users.get(packet.d.user_id);
-
-                if (packet.t === "MESSAGE_REACTION_ADD") {
-                    this.emit('messageReactionAdd', reaction, user);
-                }
-                if (packet.t === "MESSAGE_REACTION_REMOVE") {
-                    this.emit('messageReactionRemove', reaction, user);
-                }
-            });
         });
 
         // Parse all messages.
