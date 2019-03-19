@@ -113,6 +113,8 @@ module.exports = class Commands {
      * @param {string} prefix  - The command prefix to set.
      */
     setGuildPrefix(guildId, prefix) {
+        this._client.emit('debug', `[commands] Set command prefix for guild ${guildId} to '${prefix}'.`);
+
         this._guildPrefixes[guildId] = prefix;
     }
 
@@ -123,6 +125,8 @@ module.exports = class Commands {
      * @param {string} guildId - The guild id to clear the command prefix from.
      */
     clearGuildPrefix(guildId) {
+        this._client.emit('debug', `[commands] Clear command prefix from guild ${guildId}.`);
+
         delete this._guildPrefixes[guildId];
     }
 
