@@ -55,6 +55,7 @@ module.exports = class Commands {
         this._client = client;
 
         this._prefix = DEFAULT_PREFIX;
+        this._guildPrefixes = {};
         this._data = {};
     }
 
@@ -106,6 +107,26 @@ module.exports = class Commands {
     }
 
     /**
+     * Set the command prefix for commands used in the specified guild.
+     * 
+     * @param {string} guildId - The guild id to set the command prefix to.
+     * @param {string} prefix  - The command prefix to set.
+     */
+    setGuildPrefix(guildId, prefix) {
+        this._guildPrefixes[guildId] = prefix;
+    }
+
+    /**
+     * Clear the command prefix for commands used in the specified guild, returning them to
+     * the default.
+     * 
+     * @param {string} guildId - The guild id to clear the command prefix from.
+     */
+    clearGuildPrefix(guildId) {
+        delete this._guildPrefixes[guildId];
+    }
+
+    /**
      * Hook a command to be parsed in channels or direct messages.
      * 
      * @param {string} name - The name of the command to hook.
@@ -142,16 +163,39 @@ module.exports = class Commands {
 
         // If line isn't defined, parse it from the message.
         if (!line) {
-            if (message.channel.type == 'text' && message.content.startsWith(this._prefix)
-                && message.content.length > 1) {
-                // If the message is from a channel and starts with our prefix, parse it.
-                line = message.content.slice(this._prefix.length);
-            } else if (message.channel.type == 'dm') {
-                // If the message is from a dm, parse it.
-                line = message.content;
-            } else {
+            switch (message.channel.type) {
+                // If the message is from a channel...
+                case 'text': {
+                    let prefix = this._guildPrefixes[message.guild.id] || this._prefix;
+
+                    // ...and starts with our prefix, parse it.
+                    if (message.content.startsWith(prefix) && message.content.length > prefix.length) {
+                        line = message.content.slice(prefix.length);
+
+                        break;
+                    }
+                    // ...and we're being mentioned, parse it.
+                    if (message.isMentioned(this._client.user.id)) {
+                        line = message.content.replace(`<@${this._client.user.id}>`, "");
+
+                        break;
+                    }
+
+                    // Ignore all other messages.
+                    return;
+                }
+
+                // If the message is from a dm...
+                case 'dm': {
+                    line = message.content;
+
+                    break;
+                }
+
                 // Ignore all other messages.
-                return;
+                default: {
+                    return;
+                }
             }
         }
 
