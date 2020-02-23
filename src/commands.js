@@ -264,7 +264,7 @@ module.exports = class Commands {
             throw err;
         })
         .catch(err => {
-            console.log("Unhandled error: " + err.stack);
+            this._client.emit('error', err);
         });
     }
 
