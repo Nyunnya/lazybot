@@ -131,6 +131,21 @@ module.exports = class Commands {
     }
 
     /**
+     * Set a common error handler callback function to be called if any errors occur while
+     * running a command.
+     * 
+     * @param {function} error - The callback function.
+     */
+    setErrorHandler(error) {
+        // If the error handler isn't a function, throw.
+        if (typeof error !== 'function') {
+            throw new TypeError("Error must be a function.");
+        }
+
+        this._errorHandler = error;
+    }
+
+    /**
      * Hook a command to be parsed in channels or direct messages.
      * 
      * @param {string} name - The name of the command to hook.
@@ -239,6 +254,15 @@ module.exports = class Commands {
         // Run the command.
         Promise.resolve()
         .then(() => command.handler.run(params, command))
+        .catch(err => {
+            // If an error handler callback function has been set, call it.
+            if (this._errorHandler) {
+                return Promise.resolve()
+                .then(() => this._errorHandler(err, params));
+            }
+
+            throw err;
+        })
         .catch(err => {
             console.log("Unhandled error: " + err.stack);
         });
