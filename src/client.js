@@ -66,13 +66,4 @@ module.exports = class Client extends Discord.Client {
         // Parse all messages.
         this.on('message', message => this.commands.parse(message));
     }
-
-    /**
-     * Current status of the client's connection to Discord.
-     * 
-     * Fix the issue with ws.connection being null causing an exception here.
-     */
-    get status() {
-        return this.ws.connection ? this.ws.connection.status : undefined;
-    }
 };
