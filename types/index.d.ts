@@ -61,6 +61,7 @@ declare module 'lazybot' {
 
         public setGuildPrefix(guildId: string, prefix: string): void;
         public clearGuildPrefix(guildId: string): void;
+        public setErrorHandler(error: CommandHandlerErrorHandler): void;
 
         public hook(name: string, data: string | CommandHandler | Command): void;
         public parse(message: Discord.Message, line?: string): void;
