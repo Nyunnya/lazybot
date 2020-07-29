@@ -195,7 +195,7 @@ module.exports = class Commands {
                     }
                     // ...and we're being mentioned, parse it.
                     if (message.isMentioned(this._client.user.id)) {
-                        line = message.content.replace(`<@${this._client.user.id}>`, "");
+                        line = message.content.replace(`<@!${this._client.user.id}>`, "");
 
                         break;
                     }
